@@ -1,0 +1,623 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>Mission Fluence</title>
+<style>
+:root{
+  --ink:#17365d;--blue:#6da8e8;--darkblue:#2475c7;--pink:#ef8fb2;
+  --green:#63b66d;--yellow:#ffe28b;--purple:#8a69bc;--soft:#f6fbff;
+  --shadow:0 12px 30px rgba(23,54,93,.17)
+}
+*{box-sizing:border-box}
+body{
+  margin:0;font-family:Arial,Helvetica,sans-serif;color:var(--ink);
+  background:linear-gradient(180deg,#eaf5ff,#fff9ef)
+}
+button,input,select,textarea{font:inherit}
+button{cursor:pointer}
+.app{
+  width:min(1400px,98vw);margin:10px auto;background:white;
+  border:4px solid var(--blue);border-radius:30px;box-shadow:var(--shadow);overflow:hidden
+}
+header{padding:14px 90px 8px;text-align:center;position:relative}
+h1{margin:0;font-size:clamp(38px,5vw,62px)}
+.subtitle{font-size:clamp(16px,1.8vw,22px);color:#567ba3;margin-top:5px}
+.mascot{position:absolute;left:20px;top:9px;font-size:62px;animation:floaty 3s ease-in-out infinite}
+.stars{position:absolute;right:22px;top:16px;font-size:40px}
+@keyframes floaty{50%{transform:translateY(-5px) rotate(-2deg)}}
+
+.topbar{display:flex;justify-content:center;gap:10px;flex-wrap:wrap;padding:8px 18px 12px}
+.btn{
+  border:0;border-radius:15px;padding:12px 18px;font-weight:900;color:white;
+  background:var(--darkblue);box-shadow:0 4px 10px rgba(36,117,199,.22)
+}
+.btn.green{background:#4c9e62}.btn.secondary{background:#6f8eae}
+.btn.purple{background:var(--purple)}.btn.pink{background:#d85f87}
+.btn.yellow{background:#d8a928;color:#17365d}.btn:disabled{opacity:.45;cursor:not-allowed}
+
+.screen{display:none;padding:10px 18px 20px}
+.screen.active{display:block}
+.welcome{
+  text-align:center;border:3px solid #bed7ef;border-radius:24px;
+  background:linear-gradient(#fbfdff,#eef7ff);padding:20px;margin-bottom:16px
+}
+.welcome h2{font-size:30px;margin:0 0 8px}
+.welcome p{font-size:19px;margin:0}
+
+.mission-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+.mission-card{
+  border:3px solid #bfd7ee;border-radius:22px;background:white;padding:16px;
+  min-height:190px;display:flex;flex-direction:column;align-items:center;
+  justify-content:center;text-align:center;box-shadow:0 7px 16px rgba(23,54,93,.10);transition:.2s
+}
+.mission-card:hover{transform:translateY(-4px)}
+.mission-card .icon{font-size:45px}
+.mission-card h3{margin:7px 0;font-size:25px}
+.mission-card p{margin:0 0 10px;color:#6381a0}
+.teacher-message{
+  border:2px solid #f0c9d7;background:#fff4f8;border-radius:14px;padding:10px;
+  margin:8px 0 12px;font-size:16px
+}
+.empty{
+  grid-column:1/-1;text-align:center;border:3px dashed #b9d5ef;
+  border-radius:22px;padding:35px;background:#fbfdff;font-size:20px
+}
+
+.panel{border:3px solid #b9d5ef;border-radius:22px;background:#fbfdff;padding:16px}
+.panel h2{text-align:center;margin:0 0 12px;font-size:27px}
+.editor-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px}
+.editor-box{border:2px solid #c5dbef;border-radius:17px;background:white;padding:12px}
+.editor-box h3{text-align:center;margin:0 0 8px;font-size:22px}
+label{font-weight:900}
+input,textarea,select{
+  width:100%;border:2px solid #a9c8e8;border-radius:12px;padding:10px;background:white
+}
+textarea{min-height:220px;resize:vertical;line-height:1.45}
+.help{font-size:14px;color:#6585a4;margin-top:5px}
+.actions{display:flex;gap:9px;justify-content:center;flex-wrap:wrap;margin-top:12px}
+
+.choice-head{text-align:center;margin-bottom:16px}
+.choice-head h2{font-size:30px;margin:0 0 4px}
+.type-grid,.activity-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.type-card,.activity-card{
+  border:3px solid #c2d9ee;border-radius:22px;background:white;padding:22px;text-align:center;
+  min-height:220px;display:flex;flex-direction:column;justify-content:center;align-items:center
+}
+.type-card .icon,.activity-card .icon{font-size:52px}
+.type-card h3,.activity-card h3{font-size:27px;margin:9px 0}
+.type-card p,.activity-card p{color:#6684a2;margin:0 0 12px;line-height:1.4}
+
+.game-layout{display:grid;grid-template-columns:330px 1fr;gap:16px}
+.settings h3{text-align:center;margin-top:0}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.statusbar{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:12px}
+.status{border-radius:16px;padding:12px;text-align:center;font-weight:900;background:#eef6ff}
+.status .big{display:block;font-size:31px;margin-top:3px}
+.flash-card{
+  min-height:330px;border:4px dashed #95bde7;border-radius:24px;
+  display:flex;align-items:center;justify-content:center;text-align:center;padding:20px;
+  background:linear-gradient(#fff,#eef7ff)
+}
+.flash-word{font-size:clamp(52px,9vw,108px);font-weight:900;color:#7652a5;line-height:1.12}
+.list-board{
+  min-height:330px;border:4px dashed #95bde7;border-radius:24px;background:#fff;
+  padding:20px;display:grid;grid-template-columns:repeat(5,1fr);gap:12px;align-content:start
+}
+.list-item{padding:8px;text-align:center;border-radius:13px;background:#f4ecff;border:2px solid #cdb4eb;font-size:25px;font-weight:900}
+.record-box{margin-top:12px;padding:12px;border-radius:16px;background:#eef9f0;border:2px solid #a9d9b0}
+.result{margin-top:14px;border:3px solid #c7dcef;border-radius:20px;padding:14px;background:white}
+.result-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.result-card{text-align:center;border-radius:14px;padding:12px;background:#f7fbff;border:2px solid #c8ddee}
+.result-card strong{display:block;font-size:28px;margin-top:4px}
+.voice-guide{
+  border:3px solid #f0c9d7;background:#fff6fa;border-radius:22px;padding:18px;
+  margin-bottom:14px;text-align:center
+}
+.voice-guide h3{margin:0 0 10px;font-size:26px}
+.voice-steps{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-top:12px}
+.voice-step{border:2px solid #e5bfd0;border-radius:14px;padding:10px;background:white;font-weight:800}
+.smileys{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:14px}
+.smiley{border:2px solid #c8ddee;border-radius:14px;background:white;padding:10px 14px;font-size:18px}
+.smiley.selected{outline:4px solid var(--yellow)}
+.hidden{display:none!important}
+.saved-list{
+  border:2px solid #c7dcef;border-radius:14px;padding:10px;margin:8px 0;
+  display:grid;grid-template-columns:1fr auto auto;gap:8px;align-items:center;background:white
+}
+footer{text-align:center;color:#5b7b9d;padding:0 18px 17px;font-size:15px}
+
+@media(max-width:1000px){
+  .mission-grid{grid-template-columns:repeat(2,1fr)}
+  .editor-grid,.type-grid,.activity-grid{grid-template-columns:1fr}
+  .game-layout{grid-template-columns:1fr}
+  .voice-steps{grid-template-columns:1fr}
+}
+@media(max-width:620px){
+  header{padding:12px 58px 6px}.mascot{font-size:44px}.stars{font-size:28px}
+  .mission-grid{grid-template-columns:1fr}
+  .row,.statusbar,.result-grid{grid-template-columns:1fr}
+  .list-board{grid-template-columns:repeat(2,1fr)}
+}
+</style>
+</head>
+<body>
+<div class="app">
+<header>
+  <div class="mascot">🦉</div>
+  <div class="stars">⭐ ✨</div>
+  <h1>MISSION FLUENCE</h1>
+  <div class="subtitle">Une mission complète pour chaque son : syllabes, mots et phrases.</div>
+</header>
+
+<div class="topbar">
+  <button class="btn" id="homeBtn">🏠 Accueil</button>
+  <button class="btn purple" id="teacherBtn">⚙️ Mode enseignant</button>
+</div>
+
+<section class="screen active" id="homeScreen">
+  <div class="welcome">
+    <h2>Bonjour lecteur !</h2>
+    <p>Quelle mission souhaites-tu réaliser aujourd’hui ?</p>
+  </div>
+  <div class="mission-grid" id="missionGrid"></div>
+</section>
+
+<section class="screen" id="teacherScreen">
+  <div class="panel">
+    <h2>Créer ou modifier une mission</h2>
+
+    <div style="max-width:620px;margin:0 auto 14px">
+      <label for="missionName">Nom de la mission</label>
+      <input id="missionName" placeholder="Ex. Son R">
+
+      <div style="margin-top:12px">
+        <label for="teacherMessage">Petit message du professeur (facultatif)</label>
+        <textarea id="teacherMessage" style="min-height:90px" placeholder="Ex. Cette semaine, nous travaillons le son R. Prends ton temps et lis avec attention."></textarea>
+      </div>
+    </div>
+
+    <div class="editor-grid">
+      <div class="editor-box">
+        <h3>🔤 Syllabes</h3>
+        <textarea id="syllablesInput" placeholder="ra&#10;ri&#10;ro&#10;ru&#10;ar&#10;or"></textarea>
+        <div class="help">Une syllabe par ligne.</div>
+      </div>
+      <div class="editor-box">
+        <h3>📖 Mots</h3>
+        <textarea id="wordsInput" placeholder="rat&#10;robe&#10;robot&#10;renard"></textarea>
+        <div class="help">Un mot par ligne.</div>
+      </div>
+      <div class="editor-box">
+        <h3>✏️ Phrases courtes</h3>
+        <textarea id="phrasesInput" placeholder="Le rat dort.&#10;Rita a un robot."></textarea>
+        <div class="help">Une phrase par ligne.</div>
+      </div>
+    </div>
+
+    <div class="actions">
+      <button class="btn green" id="saveMissionBtn">💾 Enregistrer ma mission</button>
+      <button class="btn secondary" id="newMissionBtn">➕ Nouvelle mission</button>
+      <button class="btn purple" id="exportBtn">⬇️ Exporter toutes les missions</button>
+      <label class="btn secondary">
+        ⬆️ Importer
+        <input type="file" id="importInput" accept=".json" style="display:none">
+      </label>
+    </div>
+  </div>
+
+  <div class="panel" style="margin-top:14px">
+    <h2>Mes missions enregistrées</h2>
+    <div id="teacherMissionList"></div>
+  </div>
+</section>
+
+<section class="screen" id="typeScreen">
+  <div class="choice-head">
+    <h2 id="selectedMissionTitle">Mission</h2>
+    <div id="selectedMissionMessage" class="teacher-message hidden"></div>
+    <p>Que veux-tu lire ?</p>
+  </div>
+
+  <div class="type-grid">
+    <div class="type-card">
+      <div class="icon">🔤</div>
+      <h3>Mes syllabes</h3>
+      <p>Je m’entraîne à lire les syllabes de la mission.</p>
+      <button class="btn" data-type="syllables">Choisir</button>
+    </div>
+    <div class="type-card">
+      <div class="icon">📖</div>
+      <h3>Mes mots</h3>
+      <p>Je lis des mots contenant le son travaillé.</p>
+      <button class="btn green" data-type="words">Choisir</button>
+    </div>
+    <div class="type-card">
+      <div class="icon">✏️</div>
+      <h3>Mes phrases</h3>
+      <p>Je lis de petites phrases avec fluidité.</p>
+      <button class="btn purple" data-type="phrases">Choisir</button>
+    </div>
+  </div>
+</section>
+
+<section class="screen" id="activityScreen">
+  <div class="choice-head">
+    <h2 id="activityTitle">Choisis ton activité</h2>
+    <p>Tu peux refaire la même activité plusieurs fois pour progresser.</p>
+  </div>
+
+  <div class="activity-grid">
+    <div class="activity-card">
+      <div class="icon">⚡</div>
+      <h3>Lecture flash</h3>
+      <p>Les éléments apparaissent un par un pour automatiser la lecture.</p>
+      <button class="btn" data-activity="flash">Commencer</button>
+    </div>
+
+    <div class="activity-card">
+      <div class="icon">⏱️</div>
+      <h3>Lecture chronométrée</h3>
+      <p>Je lis la liste pendant un temps donné et j’observe mes progrès.</p>
+      <button class="btn green" data-activity="list">Commencer</button>
+    </div>
+
+    <div class="activity-card">
+      <div class="icon">🎙️</div>
+      <h3>Je lis à voix haute</h3>
+      <p>Je lis sans chronomètre, je m’enregistre et je travaille l’expression.</p>
+      <button class="btn purple" data-activity="voice">Commencer</button>
+    </div>
+  </div>
+</section>
+
+<section class="screen" id="gameScreen">
+  <div class="game-layout">
+    <aside class="panel settings" id="settingsPanel">
+      <h3>Réglages de la mission</h3>
+
+      <div id="timedSettings">
+        <div class="row">
+          <div>
+            <label>Durée</label>
+            <select id="durationSelect">
+              <option value="30">30 secondes</option>
+              <option value="60" selected>1 minute</option>
+              <option value="120">2 minutes</option>
+            </select>
+          </div>
+          <div>
+            <label>Vitesse flash</label>
+            <select id="speedSelect">
+              <option value="2500">Lente</option>
+              <option value="1600" selected>Normale</option>
+              <option value="900">Rapide</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="actions">
+          <button class="btn green" id="startGameBtn">▶️ Démarrer</button>
+          <button class="btn pink" id="stopGameBtn" disabled>⏹️ Arrêter</button>
+          <button class="btn purple" id="shuffleGameBtn">🔀 Mélanger</button>
+        </div>
+      </div>
+
+      <div class="record-box">
+        <strong style="display:block;text-align:center">Je m’enregistre</strong>
+        <div class="actions">
+          <button class="btn green" id="recordBtn">🎙️ Enregistrer</button>
+          <button class="btn secondary" id="recordStopBtn" disabled>⏹️ Stop</button>
+          <button class="btn" id="playBtn" disabled>▶️ Réécouter</button>
+        </div>
+        <div class="help" id="recordStatus">L’enregistrement reste sur cet appareil.</div>
+        <audio id="audioPlayback" class="hidden" controls style="width:100%;margin-top:8px"></audio>
+      </div>
+    </aside>
+
+    <main class="panel">
+      <div id="voiceGuide" class="voice-guide hidden">
+        <h3>🎙️ Je lis à voix haute</h3>
+        <p>Prends ton temps. Lis tranquillement et écoute-toi pour progresser.</p>
+        <div class="voice-steps">
+          <div class="voice-step">1. Je lis une première fois.</div>
+          <div class="voice-step">2. Je m’enregistre.</div>
+          <div class="voice-step">3. Je me réécoute.</div>
+          <div class="voice-step">4. Je relis une deuxième fois.</div>
+          <div class="voice-step">5. Je réfléchis à ma lecture.</div>
+        </div>
+      </div>
+
+      <div class="statusbar" id="statusBar">
+        <div class="status">Temps<span class="big" id="timeLeft">60</span></div>
+        <div class="status">Éléments lus<span class="big" id="seenCount">0</span></div>
+        <div class="status">Mission<span class="big" id="missionState">Prête</span></div>
+      </div>
+
+      <div class="flash-card" id="flashCard">
+        <div class="flash-word" id="flashWord">Appuie sur « Démarrer »</div>
+      </div>
+
+      <div class="list-board hidden" id="listBoard"></div>
+
+      <div class="result" id="timedResult">
+        <div class="result-grid">
+          <div class="result-card">Nombre lu<strong id="resultRead">0</strong></div>
+          <div class="result-card">Erreurs<strong><input id="errorsInput" type="number" min="0" value="0" style="width:85px;text-align:center"></strong></div>
+          <div class="result-card">Score juste<strong id="resultCorrect">0</strong></div>
+        </div>
+      </div>
+
+      <div class="result hidden" id="voiceResult">
+        <h3 style="text-align:center;margin-top:0">Comment s’est passée ma lecture ?</h3>
+        <div class="smileys">
+          <button class="smiley">😀 Ma lecture était facile.</button>
+          <button class="smiley">🙂 Je lis déjà mieux.</button>
+          <button class="smiley">😅 Je vais encore m’entraîner.</button>
+        </div>
+      </div>
+    </main>
+  </div>
+</section>
+
+<footer>Les missions sont enregistrées sur l’appareil utilisé. Pense à les exporter pour en garder une sauvegarde.</footer>
+</div>
+
+<script>
+const STORAGE_KEY="missionFluenceMissionsV4";
+let missions=[];
+let selectedMission=null;
+let selectedType="syllables";
+let selectedActivity="flash";
+let gameItems=[];
+let timer=null,flashTimer=null,running=false,remaining=60,seen=0,currentIndex=0;
+let editingIndex=null;
+
+const screens=[...document.querySelectorAll(".screen")];
+function showScreen(id){
+  screens.forEach(s=>s.classList.toggle("active",s.id===id));
+  window.scrollTo({top:0,behavior:"smooth"});
+}
+function loadMissions(){
+  try{missions=JSON.parse(localStorage.getItem(STORAGE_KEY)||"[]")}catch(e){missions=[]}
+}
+function saveMissions(){localStorage.setItem(STORAGE_KEY,JSON.stringify(missions))}
+function splitLines(text){return text.split(/\n+/).map(x=>x.trim()).filter(Boolean)}
+function shuffle(a){
+  const c=[...a];
+  for(let i=c.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[c[i],c[j]]=[c[j],c[i]]}
+  return c;
+}
+function clearEditor(){
+  editingIndex=null;
+  missionName.value="";
+  teacherMessage.value="";
+  syllablesInput.value="";
+  wordsInput.value="";
+  phrasesInput.value="";
+}
+function renderHome(){
+  const grid=document.getElementById("missionGrid");grid.innerHTML="";
+  if(!missions.length){
+    grid.innerHTML='<div class="empty">Aucune mission enregistrée pour le moment.<br><br>Va dans le mode enseignant pour créer ta première mission.</div>';
+    return;
+  }
+  missions.forEach((m,index)=>{
+    const card=document.createElement("div");card.className="mission-card";
+    card.innerHTML=`<div class="icon">🚀</div><h3>${m.name}</h3>
+      <p>${m.syllables.length} syllabes · ${m.words.length} mots · ${m.phrases.length} phrases</p>`;
+    if(m.message){
+      const msg=document.createElement("div");
+      msg.className="teacher-message";
+      msg.textContent=m.message;
+      card.appendChild(msg);
+    }
+    const b=document.createElement("button");b.className="btn";b.textContent="Choisir cette mission";
+    b.onclick=()=>{
+      selectedMission=missions[index];
+      selectedMissionTitle.textContent=selectedMission.name;
+      selectedMissionMessage.textContent=selectedMission.message||"";
+      selectedMissionMessage.classList.toggle("hidden",!selectedMission.message);
+      showScreen("typeScreen");
+    };
+    card.appendChild(b);grid.appendChild(card);
+  });
+}
+function renderTeacherList(){
+  const box=document.getElementById("teacherMissionList");box.innerHTML="";
+  if(!missions.length){box.innerHTML="<p style='text-align:center'>Aucune mission enregistrée.</p>";return}
+  missions.forEach((m,index)=>{
+    const row=document.createElement("div");row.className="saved-list";
+    const name=document.createElement("div");
+    name.innerHTML=`<strong>${m.name}</strong><br><span class="help">${m.syllables.length} syllabes, ${m.words.length} mots, ${m.phrases.length} phrases</span>`;
+    const edit=document.createElement("button");edit.className="btn";edit.textContent="Modifier";
+    edit.onclick=()=>{
+      editingIndex=index;
+      missionName.value=m.name;
+      teacherMessage.value=m.message||"";
+      syllablesInput.value=m.syllables.join("\n");
+      wordsInput.value=m.words.join("\n");
+      phrasesInput.value=m.phrases.join("\n");
+      window.scrollTo({top:0,behavior:"smooth"});
+    };
+    const del=document.createElement("button");del.className="btn secondary";del.textContent="Supprimer";
+    del.onclick=()=>{if(confirm("Supprimer cette mission ?")){missions.splice(index,1);saveMissions();renderAll()}};
+    row.append(name,edit,del);box.appendChild(row);
+  });
+}
+function renderAll(){renderHome();renderTeacherList()}
+
+saveMissionBtn.onclick=()=>{
+  const name=missionName.value.trim();
+  if(!name){alert("Ajoute un nom à la mission.");return}
+  const mission={
+    name,
+    message:teacherMessage.value.trim(),
+    syllables:splitLines(syllablesInput.value),
+    words:splitLines(wordsInput.value),
+    phrases:splitLines(phrasesInput.value)
+  };
+  if(editingIndex===null)missions.push(mission);else missions[editingIndex]=mission;
+  saveMissions();renderAll();clearEditor();alert("Mission enregistrée.");
+};
+newMissionBtn.onclick=clearEditor;
+homeBtn.onclick=()=>showScreen("homeScreen");
+teacherBtn.onclick=()=>showScreen("teacherScreen");
+
+document.querySelectorAll("[data-type]").forEach(b=>b.onclick=()=>{
+  selectedType=b.dataset.type;
+  const labels={syllables:"syllabes",words:"mots",phrases:"phrases"};
+  activityTitle.textContent=`${selectedMission.name} — Mes ${labels[selectedType]}`;
+  showScreen("activityScreen");
+});
+
+document.querySelectorAll("[data-activity]").forEach(b=>b.onclick=()=>{
+  selectedActivity=b.dataset.activity;
+  gameItems=[...(selectedMission[selectedType]||[])];
+  prepareGame();
+
+  const isVoice=selectedActivity==="voice";
+  voiceGuide.classList.toggle("hidden",!isVoice);
+  voiceResult.classList.toggle("hidden",!isVoice);
+  timedResult.classList.toggle("hidden",isVoice);
+  timedSettings.classList.toggle("hidden",isVoice);
+  statusBar.classList.toggle("hidden",isVoice);
+
+  flashCard.classList.toggle("hidden",selectedActivity!=="flash");
+  listBoard.classList.toggle("hidden",selectedActivity==="flash");
+  if(isVoice){
+    flashCard.classList.add("hidden");
+    listBoard.classList.remove("hidden");
+  }
+
+  showScreen("gameScreen");
+});
+
+function renderList(){
+  listBoard.innerHTML="";
+  gameItems.forEach(x=>{
+    const d=document.createElement("div");
+    d.className="list-item";
+    d.textContent=x;
+    listBoard.appendChild(d);
+  });
+}
+function prepareGame(){
+  stopGame();
+  gameItems=[...(selectedMission[selectedType]||[])];
+  seen=0;currentIndex=0;remaining=Number(durationSelect.value);
+  timeLeft.textContent=remaining;seenCount.textContent=0;missionState.textContent="Prête";
+  resultRead.textContent=0;resultCorrect.textContent=0;errorsInput.value=0;
+  flashWord.textContent=gameItems.length?gameItems[0]:"Aucun élément dans cette partie";
+  renderList();
+}
+function showNext(){
+  if(!gameItems.length)return;
+  flashWord.textContent=gameItems[currentIndex%gameItems.length];
+  currentIndex++;seen++;seenCount.textContent=seen;
+}
+function startGame(){
+  if(running||!gameItems.length)return;
+  running=true;startGameBtn.disabled=true;stopGameBtn.disabled=false;missionState.textContent="En cours";
+  if(selectedActivity==="flash"){
+    showNext();
+    flashTimer=setInterval(showNext,Number(speedSelect.value));
+  }
+  timer=setInterval(()=>{
+    remaining--;timeLeft.textContent=remaining;
+    if(remaining<=0)finishGame();
+  },1000);
+}
+function stopGame(){
+  running=false;clearInterval(timer);clearInterval(flashTimer);
+  timer=null;flashTimer=null;startGameBtn.disabled=false;stopGameBtn.disabled=true;
+}
+function finishGame(){
+  stopGame();missionState.textContent="Terminée";
+  if(selectedActivity!=="flash")seen=gameItems.length;
+  seenCount.textContent=seen;resultRead.textContent=seen;updateCorrect();
+  if(selectedActivity==="flash")flashWord.textContent="Mission accomplie !";
+}
+function updateCorrect(){
+  const errors=Math.max(0,Number(errorsInput.value)||0);
+  resultCorrect.textContent=Math.max(0,seen-errors);
+}
+startGameBtn.onclick=startGame;
+stopGameBtn.onclick=finishGame;
+shuffleGameBtn.onclick=()=>{
+  gameItems=shuffle(gameItems);
+  renderList();
+  currentIndex=0;
+};
+durationSelect.onchange=prepareGame;
+errorsInput.oninput=updateCorrect;
+
+document.querySelectorAll(".smiley").forEach(b=>b.onclick=()=>{
+  document.querySelectorAll(".smiley").forEach(x=>x.classList.remove("selected"));
+  b.classList.add("selected");
+});
+
+exportBtn.onclick=()=>{
+  const blob=new Blob([JSON.stringify(missions,null,2)],{type:"application/json"});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement("a");
+  a.href=url;a.download="mission-fluence-missions.json";a.click();
+  URL.revokeObjectURL(url);
+};
+importInput.onchange=e=>{
+  const file=e.target.files[0];
+  if(!file)return;
+  const reader=new FileReader();
+  reader.onload=()=>{
+    try{
+      const imported=JSON.parse(reader.result);
+      if(!Array.isArray(imported))throw new Error();
+      missions=imported;saveMissions();renderAll();alert("Missions importées.");
+    }catch(err){alert("Le fichier n’est pas valide.");}
+  };
+  reader.readAsText(file);
+  e.target.value="";
+};
+
+/* Enregistrement local */
+let mediaRecorder=null,audioChunks=[],audioUrl=null;
+recordBtn.onclick=async()=>{
+  try{
+    const stream=await navigator.mediaDevices.getUserMedia({audio:true});
+    audioChunks=[];
+    mediaRecorder=new MediaRecorder(stream);
+    mediaRecorder.ondataavailable=e=>{if(e.data.size)audioChunks.push(e.data)};
+    mediaRecorder.onstop=()=>{
+      const blob=new Blob(audioChunks,{type:mediaRecorder.mimeType||"audio/webm"});
+      if(audioUrl)URL.revokeObjectURL(audioUrl);
+      audioUrl=URL.createObjectURL(blob);
+      audioPlayback.src=audioUrl;
+      audioPlayback.classList.remove("hidden");
+      playBtn.disabled=false;
+      recordStatus.textContent="Enregistrement prêt.";
+      stream.getTracks().forEach(t=>t.stop());
+    };
+    mediaRecorder.start();
+    recordBtn.disabled=true;
+    recordStopBtn.disabled=false;
+    playBtn.disabled=true;
+    recordStatus.textContent="Enregistrement en cours…";
+  }catch(e){
+    recordStatus.textContent="Le microphone n’est pas autorisé dans ce navigateur.";
+  }
+};
+recordStopBtn.onclick=()=>{
+  if(mediaRecorder&&mediaRecorder.state==="recording"){
+    mediaRecorder.stop();
+    recordBtn.disabled=false;
+    recordStopBtn.disabled=true;
+  }
+};
+playBtn.onclick=()=>audioPlayback.play();
+
+loadMissions();
+renderAll();
+</script>
+</body>
+</html>
